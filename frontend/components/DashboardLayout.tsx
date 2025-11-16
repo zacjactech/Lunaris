@@ -36,6 +36,7 @@ export default function DashboardLayout({
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [notificationsRead, setNotificationsRead] = useState<Set<string>>(new Set());
   
   // Calculate unread notifications count
   const unreadNotificationsCount = useMemo(() => {
@@ -65,11 +66,19 @@ export default function DashboardLayout({
     }
     
     let count = 0;
-    if (!hasJournaledToday) count++; // Reminder notification
-    if (currentStreak >= 3) count++; // Streak notification
+    if (!hasJournaledToday && !notificationsRead.has('reminder-today')) count++; // Reminder notification
+    if (currentStreak >= 3 && !notificationsRead.has(`streak-${currentStreak}`)) count++; // Streak notification
     
     return count;
-  }, [entries]);
+  }, [entries, notificationsRead]);
+
+  const handleNotificationRead = (notificationIds: string[]) => {
+    setNotificationsRead(prev => {
+      const newSet = new Set(prev);
+      notificationIds.forEach(id => newSet.add(id));
+      return newSet;
+    });
+  };
 
   const displayName = user.displayName || user.email.split('@')[0];
   const firstName = displayName.split(' ')[0];
@@ -304,6 +313,7 @@ export default function DashboardLayout({
           isOpen={showNotifications}
           onClose={() => setShowNotifications(false)}
           entries={entries}
+          onNotificationsRead={handleNotificationRead}
         />
 
         {/* Content Area */}

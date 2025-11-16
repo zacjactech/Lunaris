@@ -30,25 +30,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setIsMounted(true);
+    // Try to restore access token from sessionStorage
+    const storedToken = sessionStorage.getItem('accessToken');
+    if (storedToken) {
+      setAccessToken(storedToken);
+    }
   }, []);
 
   const refreshToken = useCallback(async () => {
     try {
       const response = await axiosInstance.post('/auth/refresh');
-      setAccessToken(response.data.accessToken);
+      const token = response.data.accessToken;
+      setAccessToken(token);
       setUser(response.data.user);
+      sessionStorage.setItem('accessToken', token);
     } catch (error) {
       // Clear auth state if refresh fails
       setAccessToken(null);
       setUser(null);
+      sessionStorage.removeItem('accessToken');
       throw error;
     }
   }, []);
 
   const login = async (email: string, password: string) => {
     const response = await axiosInstance.post('/auth/login', { email, password });
-    setAccessToken(response.data.accessToken);
+    const token = response.data.accessToken;
+    setAccessToken(token);
     setUser(response.data.user);
+    sessionStorage.setItem('accessToken', token);
     router.push('/');
   };
 
@@ -58,8 +68,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
       displayName,
     });
-    setAccessToken(response.data.accessToken);
+    const token = response.data.accessToken;
+    setAccessToken(token);
     setUser(response.data.user);
+    sessionStorage.setItem('accessToken', token);
     router.push('/');
   };
 
@@ -71,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setAccessToken(null);
       setUser(null);
+      sessionStorage.removeItem('accessToken');
       router.push('/auth');
     }
   };
@@ -129,10 +142,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initAuth = async () => {
       try {
         const response = await axiosInstance.post('/auth/refresh');
-        setAccessToken(response.data.accessToken);
+        const token = response.data.accessToken;
+        setAccessToken(token);
         setUser(response.data.user);
+        sessionStorage.setItem('accessToken', token);
       } catch {
         console.log('No valid session');
+        sessionStorage.removeItem('accessToken');
       } finally {
         setIsLoading(false);
       }

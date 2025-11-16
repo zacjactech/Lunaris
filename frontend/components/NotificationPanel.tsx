@@ -21,9 +21,10 @@ interface NotificationPanelProps {
   isOpen: boolean;
   onClose: () => void;
   entries: Entry[];
+  onNotificationsRead?: (notificationIds: string[]) => void;
 }
 
-export default function NotificationPanel({ isOpen, onClose, entries }: NotificationPanelProps) {
+export default function NotificationPanel({ isOpen, onClose, entries, onNotificationsRead }: NotificationPanelProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   // Generate notifications based on real data
@@ -138,10 +139,17 @@ export default function NotificationPanel({ isOpen, onClose, entries }: Notifica
     setNotifications(prev =>
       prev.map(n => (n.id === id ? { ...n, read: true } : n))
     );
+    if (onNotificationsRead) {
+      onNotificationsRead([id]);
+    }
   };
 
   const markAllAsRead = () => {
+    const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    if (onNotificationsRead && unreadIds.length > 0) {
+      onNotificationsRead(unreadIds);
+    }
   };
 
   const deleteNotification = (id: string) => {
