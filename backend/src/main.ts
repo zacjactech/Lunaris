@@ -15,6 +15,9 @@ async function bootstrap() {
   await initializeDatabase(dbPath);
   const app = await NestFactory.create(AppModule);
   
+  // Set global API prefix
+  app.setGlobalPrefix('api');
+  
   // Security middleware
   app.use(helmet());
   app.use(cookieParser());

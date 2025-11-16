@@ -4,7 +4,7 @@ import { EntriesService } from './entries.service';
 import { CreateEntryDto } from './dto/create-entry.dto';
 import { UpdateEntryDto } from './dto/update-entry.dto';
 
-@Controller('api/entries')
+@Controller('entries')
 @UseGuards(JwtAuthGuard)
 export class EntriesController {
   constructor(private entriesService: EntriesService) {}

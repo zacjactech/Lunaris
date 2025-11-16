@@ -10,11 +10,13 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   private setRefreshTokenCookie(res: Response, refreshToken: string) {
+    const isProduction = process.env.NODE_ENV === 'production';
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: isProduction, // Must be true for sameSite: 'none'
+      sameSite: isProduction ? 'none' : 'lax', // 'none' allows cross-site cookies
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
     });
   }
 
@@ -64,10 +66,12 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@Res({ passthrough: true }) res: Response) {
+    const isProduction = process.env.NODE_ENV === 'production';
     res.clearCookie('refreshToken', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
     });
     
     return { message: 'Logged out successfully' };
