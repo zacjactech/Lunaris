@@ -12,10 +12,6 @@ Lunaris is a full-stack emotion journal web application designed to provide user
 - **Frontend**: https://cosmic-babka-a9c6fd.netlify.app/
 - **Backend API**: https://lunaris-production-92be.up.railway.app
 
-**Test Account** (for quick testing):
-- Email: `test@example.com`
-- Password: `password123`
-
 ## ✨ Features
 
 - **Emotion Selection**: Choose from 10 predefined emotions (Peaceful, Grateful, Hopeful, Joyful, Anxious, Sad, Frustrated, Overwhelmed, Neutral, Reflective)
