@@ -37,6 +37,12 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# Database
+*.db
+*.sqlite
+*.sqlite3
+backend/data/
+
 # Misc
 *.pem
 .vercel
