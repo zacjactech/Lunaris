@@ -1,8 +1,17 @@
 import { DataSource } from 'typeorm';
+import * as fs from 'fs';
+import * as path from 'path';
 import { User } from '../users/user.entity';
 import { Entry } from '../entries/entry.entity';
 
 export async function initializeDatabase(dbPath: string): Promise<void> {
+  // Ensure the directory exists
+  const dbDir = path.dirname(dbPath);
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+    console.log(`Created database directory: ${dbDir}`);
+  }
+
   const dataSource = new DataSource({
     type: 'sqlite',
     database: dbPath,
