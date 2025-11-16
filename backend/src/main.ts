@@ -4,11 +4,15 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
+import { initializeDatabase } from './database/init';
 
 // Load environment variables
 dotenv.config();
 
 async function bootstrap() {
+  // Initialize database tables if they don't exist
+  const dbPath = process.env.DB_PATH || 'data/sqlite.db';
+  await initializeDatabase(dbPath);
   const app = await NestFactory.create(AppModule);
   
   // Security middleware
