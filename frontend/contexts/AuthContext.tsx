@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshToken = useCallback(async () => {
     try {
-      const response = await axiosInstance.post('/auth/refresh');
+      const response = await axiosInstance.post('/api/auth/refresh');
       const token = response.data.accessToken;
       setAccessToken(token);
       setUser(response.data.user);
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await axiosInstance.post('/auth/login', { email, password });
+    const response = await axiosInstance.post('/api/auth/login', { email, password });
     const token = response.data.accessToken;
     setAccessToken(token);
     setUser(response.data.user);
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (email: string, password: string, displayName?: string) => {
-    const response = await axiosInstance.post('/auth/register', {
+    const response = await axiosInstance.post('/api/auth/register', {
       email,
       password,
       displayName,
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await axiosInstance.post('/auth/logout');
+      await axiosInstance.post('/api/auth/logout');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const originalRequest = error.config;
 
         // Don't retry if it's the refresh endpoint itself
-        if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh')) {
+        if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/api/auth/refresh')) {
           originalRequest._retry = true;
 
           try {
@@ -141,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const initAuth = async () => {
       try {
-        const response = await axiosInstance.post('/auth/refresh');
+        const response = await axiosInstance.post('/api/auth/refresh');
         const token = response.data.accessToken;
         setAccessToken(token);
         setUser(response.data.user);

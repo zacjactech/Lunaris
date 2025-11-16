@@ -11,7 +11,8 @@ dotenv.config();
 
 async function bootstrap() {
   // Initialize database tables if they don't exist
-  const dbPath = process.env.DB_PATH || 'data/sqlite.db';
+  // Use ./data for relative path or fallback to current directory
+  const dbPath = process.env.DB_PATH || './data/sqlite.db';
   await initializeDatabase(dbPath);
   const app = await NestFactory.create(AppModule);
   

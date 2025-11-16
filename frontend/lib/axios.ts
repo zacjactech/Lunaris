@@ -4,7 +4,7 @@ import axios from 'axios';
 const baseURL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/$/, '');
 
 const axiosInstance = axios.create({
-  baseURL: `${baseURL}/api`,
+  baseURL: baseURL, // Backend already has /api prefix
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

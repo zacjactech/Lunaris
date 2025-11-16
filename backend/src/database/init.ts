@@ -5,11 +5,18 @@ import { User } from '../users/user.entity';
 import { Entry } from '../entries/entry.entity';
 
 export async function initializeDatabase(dbPath: string): Promise<void> {
-  // Ensure the directory exists
+  // Ensure the directory exists (only if it's a relative path)
   const dbDir = path.dirname(dbPath);
-  if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
-    console.log(`Created database directory: ${dbDir}`);
+  
+  // Only create directory if it's not an absolute path or if we have permissions
+  try {
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+      console.log(`Created database directory: ${dbDir}`);
+    }
+  } catch (error) {
+    console.warn(`Could not create directory ${dbDir}, using current directory instead`);
+    // If we can't create the directory, the database will be created in the current directory
   }
 
   const dataSource = new DataSource({

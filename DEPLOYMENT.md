@@ -19,11 +19,13 @@ NEXT_PUBLIC_API_URL=https://lunaris-production-92be.up.railway.app
 Ensure these are set:
 ```
 JWT_SECRET=<your-secure-secret>
-DB_PATH=data/sqlite.db
+DB_PATH=./data/sqlite.db
 PORT=3001
 NODE_ENV=production
 FRONTEND_URL=https://cosmic-babka-a9c6fd.netlify.app
 ```
+
+**Note**: Use `./data/sqlite.db` (relative path) not `/data/sqlite.db` (absolute path)
 
 ### If Frontend Can't Connect to Backend
 1. Go to Netlify Dashboard → Site settings → Environment variables

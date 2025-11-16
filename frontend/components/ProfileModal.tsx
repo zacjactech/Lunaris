@@ -39,7 +39,7 @@ export default function ProfileModal({ isOpen, onClose, user, onLogout, entries 
   const fetchStats = useCallback(async () => {
     try {
       setIsLoadingStats(true);
-      const response = await axiosInstance.get('/users/stats');
+      const response = await axiosInstance.get('/api/users/stats');
       setStats(response.data);
     } catch (error) {
       console.error('Failed to fetch stats:', error);
@@ -64,7 +64,7 @@ export default function ProfileModal({ isOpen, onClose, user, onLogout, entries 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await axiosInstance.put('/users/profile', {
+      await axiosInstance.put('/api/users/profile', {
         displayName: displayName.trim() || undefined,
       });
       setSuccessMessage('Profile updated successfully!');
