@@ -59,15 +59,68 @@ export async function initializeDatabase(dbPath: string): Promise<void> {
           CREATE TABLE "entries" (
             "id" varchar PRIMARY KEY NOT NULL,
             "emotion" varchar NOT NULL,
-            "intensity" integer NOT NULL,
-            "notes" text,
+            "note" text NOT NULL,
             "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
-            "updatedAt" datetime NOT NULL DEFAULT (datetime('now')),
             "userId" varchar NOT NULL,
             FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE
           )
         `);
         console.log('Entries table created');
+      } else {
+        // Migration: Check if old 'notes' column exists and rename to 'note'
+        try {
+          const tableInfo = await queryRunner.query(`PRAGMA table_info(entries)`);
+          const hasNotesColumn = tableInfo.some((col: any) => col.name === 'notes');
+          const hasNoteColumn = tableInfo.some((col: any) => col.name === 'note');
+          
+          if (hasNotesColumn && !hasNoteColumn) {
+            console.log('Migrating: Renaming column "notes" to "note"...');
+            // SQLite doesn't support RENAME COLUMN directly in older versions
+            // We need to recreate the table
+            await queryRunner.query(`
+              CREATE TABLE "entries_new" (
+                "id" varchar PRIMARY KEY NOT NULL,
+                "emotion" varchar NOT NULL,
+                "note" text NOT NULL,
+                "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
+                "userId" varchar NOT NULL,
+                FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE
+              )
+            `);
+            await queryRunner.query(`
+              INSERT INTO "entries_new" (id, emotion, note, createdAt, userId)
+              SELECT id, emotion, notes, createdAt, userId FROM entries
+            `);
+            await queryRunner.query(`DROP TABLE entries`);
+            await queryRunner.query(`ALTER TABLE entries_new RENAME TO entries`);
+            console.log('Migration complete: Column renamed from "notes" to "note"');
+          }
+          
+          // Remove intensity column if it exists
+          const hasIntensityColumn = tableInfo.some((col: any) => col.name === 'intensity');
+          if (hasIntensityColumn) {
+            console.log('Migrating: Removing "intensity" column...');
+            await queryRunner.query(`
+              CREATE TABLE "entries_temp" (
+                "id" varchar PRIMARY KEY NOT NULL,
+                "emotion" varchar NOT NULL,
+                "note" text NOT NULL,
+                "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
+                "userId" varchar NOT NULL,
+                FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE
+              )
+            `);
+            await queryRunner.query(`
+              INSERT INTO "entries_temp" (id, emotion, note, createdAt, userId)
+              SELECT id, emotion, note, createdAt, userId FROM entries
+            `);
+            await queryRunner.query(`DROP TABLE entries`);
+            await queryRunner.query(`ALTER TABLE entries_temp RENAME TO entries`);
+            console.log('Migration complete: Removed "intensity" column');
+          }
+        } catch (migrationError) {
+          console.warn('Migration check failed:', migrationError);
+        }
       }
       
       console.log('Database initialization complete');
