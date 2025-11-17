@@ -17,13 +17,24 @@ import { Entry } from './entries/entry.entity';
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'sqlite',
-        database: configService.get('DB_PATH') || 'data/sqlite.db',
-        entities: [User, Entry],
-        synchronize: configService.get('NODE_ENV') !== 'production',
-        logging: configService.get('NODE_ENV') === 'development',
-      }),
+      useFactory: (configService: ConfigService) => {
+        // Convert absolute paths to relative paths for compatibility
+        let dbPath = configService.get('DB_PATH') || './data/sqlite.db';
+        
+        // If path starts with /data, convert to relative path
+        if (dbPath.startsWith('/data')) {
+          dbPath = '.' + dbPath;
+          console.log(`[TypeORM] Converted absolute path to relative: ${dbPath}`);
+        }
+        
+        return {
+          type: 'sqlite',
+          database: dbPath,
+          entities: [User, Entry],
+          synchronize: configService.get('NODE_ENV') !== 'production',
+          logging: configService.get('NODE_ENV') === 'development',
+        };
+      },
     }),
     JwtModule.registerAsync({
       global: true,
